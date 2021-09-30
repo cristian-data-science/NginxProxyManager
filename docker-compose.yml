@@ -1,0 +1,48 @@
+
+version: '3.3'
+services:
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - PATH/nextcloud/config:/config
+      - PATH/nextcloud/data:/data
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+  mariadb:
+    image: linuxserver/mariadb
+    container_name: mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=NEXTCLOUDDBPASSWORD
+      - TZ=America/New_York
+    volumes:
+      - PATH/mariadb/config:/config
+    restart: unless-stopped
+  nginx-proxy-manager:
+    container_name: nginx-proxy-manager
+    ports:
+      - '81:8181'
+      - '80:8080'
+      - '443:4443'
+    volumes:
+      - 'PATH/nginx-proxy-manager:/config'
+    restart: unless-stopped
+    image: jlesage/nginx-proxy-manager
+
+  duckdns:
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=america/New_york
+      - SUBDOMAINS=SD
+      - TOKEN=TK
+    restart: unless-stopped
+    image: linuxserver/duckdns:latest
